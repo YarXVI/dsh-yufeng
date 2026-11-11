@@ -1,5 +1,5 @@
 {
-  "name": "dsh-yufeng",
+  "name": "dsh-toolbox",
   "version": "0.6.3",
   "type": "module",
   "description": "御风 · DSH Windows 工具箱 — 划词转译（系统级热键）+ Edge 插件扩展引导安装。数据存于 DSHQK/YuFeng（与燧心同级），通过 DSH 自带的 koffi（FFI）直调 Win32，无需独立 exe。",
@@ -38,10 +38,10 @@
     }
   },
   "author": "YarXVI",
-  "homepage": "https://github.com/YarXVI/dsh-yufeng#readme",
+  "homepage": "https://github.com/YarXVI/dsh-toolbox#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/YarXVI/dsh-yufeng.git"
+    "url": "git+https://github.com/YarXVI/dsh-toolbox.git"
   },
   "keywords": [
     "dsh",
