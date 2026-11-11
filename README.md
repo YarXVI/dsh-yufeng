@@ -10,7 +10,7 @@
 ```
 DSH → 插件 → 实验性插件 → 自定义插件索引（打开）
     → 发现 → 添加索引源
-    → 粘贴: https://yarxvi.github.io/dsh-yufeng/market/index.json
+    → 粘贴: https://yarxvi.github.io/dsh-yufeng/market/index.json  ← 仓库名是 yufeng，装出来是 dsh-toolbox
     → 搜索「御风」→ 安装 → 重启 DSH
 ```
 
@@ -386,7 +386,8 @@ ctx.slots.register({ name: 'sidebar.panellist', id: PANEL_ID, order: 45, label: 
 
 ## 发布（Git 方式）
 
-包名 **dsh-yufeng**。**不走 npm** —— 索引直接指向 Git 仓库的 commit。
+包名 **dsh-toolbox**。**不走 npm** —— 索引直接指向 Git 仓库的 commit。
+> 仓库名是 `YarXVI/dsh-yufeng`（GitHub 仓库名），包名仍是 `dsh-toolbox`，两者不必一致。
 
 ```
 git+https://github.com/YarXVI/dsh-yufeng.git#<40位commit>
@@ -411,10 +412,10 @@ git push -u origin main
 
 | | 值 |
 |---|---|
-| npm 包名 | `dsh-yufeng` |
+| 包名 | `dsh-toolbox` |
 | 本地目录 | `plugins/dsh-toolbox`（目录名未改） |
 | cordis id | `toolbox` |
-| 面板路由 | `/plugins/dsh-yufeng/panel` |
+| 面板路由 | `/plugins/dsh-toolbox/panel` |
 | 数据目录 | `D:\\DSHQK\\YuFeng` |
 
 改了路由/数据目录会让**已装的 Edge 扩展路径失效、旧配置读不到**。
