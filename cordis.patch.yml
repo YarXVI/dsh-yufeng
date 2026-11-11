@@ -1,4 +1,4 @@
-# 御风（dsh-yufeng）的默认装配：只插入一行插件。
+# 御风（dsh-toolbox）的默认装配：只插入一行插件。
 #
 # 与燧心（dsh-npu）配对：燧心管本机推理，御风管系统级操作。
 # 两者通过 HTTP 解耦 —— 御风只调 /v1/chat/completions，不 import 推理侧。
@@ -7,7 +7,7 @@
 # 那些要能热改，存在 D:\DSHQK\YuFeng\config.json 里，由面板读写。
 - insert:
     - id: toolbox
-      name: 'dsh-yufeng'
+      name: 'dsh-toolbox'
       config:
         # 总开关；关掉后热键轮询不启动，但面板仍可手动触发
         enabled: true
