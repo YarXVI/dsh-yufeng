@@ -1,5 +1,5 @@
 /**
- * dsh-yufeng 浏览器侧面板 · 0.2.1
+ * dsh-toolbox 浏览器侧面板 · 0.2.1
  *
  * 单文件 React 脚本（宿主 __ModuleLoader__ 注入 react），无构建期依赖。
  * 结构对照 dsh-npu 的 client.js（同一套 slots API、同一套 --dsw-* token）。
@@ -7,7 +7,7 @@
  * ## 挂载方式
  *
  *   window.__ModuleLoader__.load({
- *     id: 'dsh-yufeng',
+ *     id: 'dsh-toolbox',
  *     factory: (require) => { ... return { apply, inject, name, version, theme } }
  *   })
  *
@@ -21,15 +21,15 @@
  * 直接 register 会在启动早期抛错。燧心也是这么做的。
  */
 window.__ModuleLoader__.load({
-  id: 'dsh-yufeng',
+  id: 'dsh-toolbox',
   factory: (require) => {
     const React = require('react');
     const h = React.createElement;
     const { useState, useEffect, useRef, useCallback } = React;
 
-    const PANEL_ID = 'dsh-yufeng-panel';
-    const ROUTE = '/plugins/dsh-yufeng/panel';
-    const STYLE_ID = 'dsh-yufeng-panel-style';
+    const PANEL_ID = 'dsh-toolbox-panel';
+    const ROUTE = '/plugins/dsh-toolbox/panel';
+    const STYLE_ID = 'dsh-toolbox-panel-style';
     const VERSION = '0.2.0';
 
     /* ------------------------------------------------------------ CSS --- */
@@ -202,7 +202,7 @@ window.__ModuleLoader__.load({
     /**
      * 面板数据获取。
      *
-     * 走的就是插件自己的 HTTP 面板 API（GET /plugins/dsh-yufeng/panel/state）。
+     * 走的就是插件自己的 HTTP 面板 API（GET /plugins/dsh-toolbox/panel/state）。
      * 不用 WebSocket / SSE —— 状态变化不频繁，轮询 2 秒足够，
      * 而且少一套连接管理。
      */
@@ -715,10 +715,10 @@ window.__ModuleLoader__.load({
         () => (typeof ctx.slots.inject === 'function'
           ? ctx.slots.inject('main', () => ctx.slots.inject('sidebar.panellist', registerAll))
           : registerAll()),
-        'dsh-yufeng: 面板'
+        'dsh-toolbox: 面板'
       );
     }
 
-    return { apply, inject: ['slots', 'layout'], name: 'dsh-yufeng', version: VERSION, theme: 'auto' };
+    return { apply, inject: ['slots', 'layout'], name: 'dsh-toolbox', version: VERSION, theme: 'auto' };
   },
 });
