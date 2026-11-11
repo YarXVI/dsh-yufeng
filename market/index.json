@@ -94,7 +94,7 @@
           "source": {
             "type": "git",
             "url": "https://github.com/YarXVI/dsh-yufeng",
-            "commit": "4e399de51dc7e39dbcaae018d13482ca02c03c27"
+            "commit": "cd6ec72cdcf9e8f2f0f1508edc4ce2df1f34b6d7"
           },
           "engines": {
             "dsh": ">=0.2.2-rc.1"
