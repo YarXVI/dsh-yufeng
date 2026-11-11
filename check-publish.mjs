@@ -26,7 +26,7 @@ function t(name, ok, detail) {
 
 console.log('=== 1. package.json ===');
 const pkg = JSON.parse(fs.readFileSync(path.join(HERE, 'package.json'), 'utf8'));
-t('name = dsh-yufeng', pkg.name === 'dsh-yufeng', pkg.name);
+t('name = dsh-toolbox', pkg.name === 'dsh-toolbox', pkg.name);
 t('version 是精确 SemVer', /^\d+\.\d+\.\d+$/.test(pkg.version), pkg.version);
 t('engines.dsh 存在', !!pkg.engines?.dsh, pkg.engines?.dsh);
 t('exports[./client] 存在', !!pkg.exports?.['./client'], pkg.exports?.['./client']);
@@ -113,7 +113,7 @@ try {
   if (!ensureValidator()) throw new Error('验证器拷贝失败');
   const MK2 = new URL('file:///' + VALIDATOR_TMP + '/node_modules/@deepseek-ai/dsh-plugin-market-index/lib/index.js').href;
   const mod = await import(MK2);
-  const parsed = mod.parseMarketIndex(idx, 'https://YarXVI.github.io/dsh-yufeng/index.json');
+  const parsed = mod.parseMarketIndex(idx, 'https://yarxvi.github.io/dsh-yufeng/market/index.json');
   t('parseMarketIndex 通过', true, parsed.plugins[0].name + ' v' + parsed.plugins[0].versions[0].version);
   spec = mod.marketInstallTarget(parsed.plugins[0].name, parsed.plugins[0].versions[0]);
   t('生成安装 spec', !!spec.spec, spec.spec);
