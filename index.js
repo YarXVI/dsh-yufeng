@@ -1,5 +1,5 @@
 /**
- * dsh-yufeng — 御风 · DSH Windows 工具箱 · 宿主入口。
+ * dsh-toolbox — 御风 · DSH Windows 工具箱 · 宿主入口。
  *
  * 当前功能：**系统级划词转译**。
  * 在任何应用（QQ / 微信 / Edge / 记事本 / 编辑器）里划词选中，
@@ -23,7 +23,7 @@ import { createWinTranslate } from './lib/service.mjs';
 import { createPanelApi, PANEL_PREFIX } from './lib/panel-api.mjs';
 import { migrateIfNeeded } from './lib/migrate.mjs';
 
-export const name = 'dsh-yufeng';
+export const name = 'dsh-toolbox';
 
 /**
  * 只注入 webServer（挂面板路由）。
@@ -36,11 +36,11 @@ export function apply(ctx, config = {}) {
   let cfg = loadConfig();
   let svc = null;
   let disposePanel = null;
-  let log = (m) => { try { console.log('[dsh-yufeng] ' + m); } catch { /* ignore */ } };
+  let log = (m) => { try { console.log('[dsh-toolbox] ' + m); } catch { /* ignore */ } };
 
   try {
     if (ctx && ctx.logger && typeof ctx.logger === 'function') {
-      const l = ctx.logger('dsh-yufeng');
+      const l = ctx.logger('dsh-toolbox');
       if (l && typeof l === 'function') log = l;
       else if (l && typeof l.info === 'function') log = (m) => { try { l.info(m); } catch { /* ignore */ } };
     }
@@ -141,7 +141,7 @@ export function apply(ctx, config = {}) {
                 path: PANEL_PREFIX,
                 handler: (req, res) => panel.handler(req, res),
               }),
-              'dsh-yufeng: panel route',
+              'dsh-toolbox: panel route',
             );
             log('面板路由已挂载 ' + PANEL_PREFIX);
           } catch (e) {
