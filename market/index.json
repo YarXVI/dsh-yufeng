@@ -53,7 +53,7 @@
   },
   "plugins": [
     {
-      "name": "dsh-yufeng",
+      "name": "dsh-toolbox",
       "title": {
         "en": "YuFeng · Windows Toolbox",
         "zh": "御风 · Windows 工具箱"
