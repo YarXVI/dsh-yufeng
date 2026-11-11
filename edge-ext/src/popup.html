@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="ui.css" />
+  <title>DSH 翻译</title>
+</head>
+<body class="popup">
+  <div class="hdr">
+    <div class="logo">译</div>
+    <div class="hdr-t">
+      <b>DSH 翻译</b>
+      <span id="status">检查中…</span>
+    </div>
+  </div>
+
+  <div class="popup-wrap">
+    <!-- 一键连接：平时是状态条，连不上时是连接按钮 -->
+    <div class="connect" id="connectBox">
+      <div class="txt">
+        <b id="connTitle">正在寻找 DSH…</b>
+        <span id="connSub">本机 NPU · 内容不出内网</span>
+      </div>
+      <button id="connectBtn" type="button">一键连接</button>
+    </div>
+
+    <button id="toggle" class="primary">翻译此页 <span class="mono">Alt+T</span></button>
+
+    <div class="progress" id="progress" hidden>
+      <div class="bar"><i id="bar"></i></div>
+      <div class="count" id="count">0 / 0</div>
+    </div>
+
+    <div class="statline" id="stat" hidden>
+      <span class="dot" id="statDot"></span>
+      <span id="statText"></span>
+    </div>
+
+    <!-- 本站自动翻译：白名单机制（默认不自动翻，只有加进白名单的站才自动翻） -->
+    <div class="row">
+      <span class="lbl">本站自动翻译</span>
+      <label class="switch" title="下次打开这个站点时自动翻译">
+        <input type="checkbox" id="autoSite" />
+        <span class="track"><i class="knob"></i></span>
+      </label>
+    </div>
+    <div class="row sub-row">
+      <span class="hint-inline" id="autoSiteHint">默认关闭 · 走白名单</span>
+    </div>
+
+    <!-- 图片自动翻译：翻页后自动翻新图（监听主图 src 变化，覆盖所有翻页方式） -->
+    <div class="row">
+      <span class="lbl">图片自动翻译</span>
+      <label class="switch" title="翻页后自动翻译新图，鼠标/方向键/滚轮都管用">
+        <input type="checkbox" id="autoImg" />
+        <span class="track"><i class="knob"></i></span>
+      </label>
+    </div>
+    <div class="row sub-row">
+      <span class="hint-inline" id="autoImgHint">默认关闭 · 一张图约 3.5 秒</span>
+    </div>
+
+    <div class="row">
+      <span class="lbl">显示方式</span>
+      <div class="seg" id="mode">
+        <button type="button" data-mode="bilingual" class="on">双语</button>
+        <button type="button" data-mode="only">仅译文</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <span class="lbl">目标语言</span>
+      <select id="lang" class="ui-select">
+        <option>简体中文</option>
+        <option>繁體中文</option>
+        <option>English</option>
+        <option>日本語</option>
+      </select>
+    </div>
+
+    <p class="hint" id="hint"></p>
+  </div>
+
+  <footer style="display:flex;justify-content:space-between;padding:6px 8px 10px;border-top:1px solid var(--line)">
+    <button id="opts" class="link" type="button">设置</button>
+    <button id="again" class="link" type="button">重新翻译</button>
+  </footer>
+
+  <script src="dsh.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

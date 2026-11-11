@@ -1,0 +1,106 @@
+{
+  "format": 1,
+  "title": {
+    "en": "YuFeng · Windows Toolbox",
+    "zh": "御风 · Windows 工具箱"
+  },
+  "description": {
+    "en": "System-wide selection translation via a global hotkey, plus guided install of the bundled Edge extension. Calls Hearthcore (dsh-npu) by default; any OpenAI-compatible endpoint can be configured.",
+    "zh": "系统级划词转译：任意应用里划词选中，按热键就地转译。内置 Edge 扩展引导安装。默认调用燧心，也可配置任意 OpenAI 兼容服务。"
+  },
+  "metadata": {
+    "categories": {
+      "tools": {
+        "title": {
+          "en": "Tools",
+          "zh": "工具"
+        }
+      }
+    },
+    "labels": {
+      "windows": {
+        "title": {
+          "en": "Windows",
+          "zh": "Windows"
+        }
+      },
+      "hotkey": {
+        "title": {
+          "en": "Global hotkey",
+          "zh": "全局热键"
+        }
+      },
+      "offline": {
+        "title": {
+          "en": "Works offline",
+          "zh": "断网可用"
+        }
+      },
+      "compat": {
+        "title": {
+          "en": "OpenAI compatible",
+          "zh": "OpenAI 兼容"
+        }
+      },
+      "nobin": {
+        "title": {
+          "en": "No separate executable",
+          "zh": "无需独立进程"
+        }
+      }
+    },
+    "sortKeys": {}
+  },
+  "plugins": [
+    {
+      "name": "dsh-yufeng",
+      "title": {
+        "en": "YuFeng · Windows Toolbox",
+        "zh": "御风 · Windows 工具箱"
+      },
+      "description": {
+        "en": "Select text in any app and press the hotkey to translate it in place. Drives Win32 through DSH's bundled koffi FFI: no separate executable, no Python. Bundles the Edge translation extension and installs it with step-by-step guidance. Defaults to Hearthcore (dsh-npu); any OpenAI-compatible endpoint can be added in the panel.",
+        "zh": "在任意应用里划词选中，按热键就地转译。通过 DSH 自带的 koffi（FFI）直调 Win32：无需独立 exe，无需 Python。内置 Edge 翻译扩展，分步骤引导安装。默认走燧心，也可在面板里加任意 OpenAI 兼容服务。"
+      },
+      "icon": "icon.svg",
+      "author": "YarXVI",
+      "homepage": "https://github.com/YarXVI/dsh-yufeng#readme",
+      "repository": {
+        "url": "https://github.com/YarXVI/dsh-yufeng"
+      },
+      "metadata": {
+        "category": "tools",
+        "keywords": [
+          "translate",
+          "hotkey",
+          "clipboard",
+          "windows",
+          "edge-extension",
+          "npu",
+          "openai-compatible"
+        ],
+        "labels": [
+          "windows",
+          "hotkey",
+          "offline",
+          "compat",
+          "nobin"
+        ]
+      },
+      "versions": [
+        {
+          "version": "0.6.3",
+          "publishTimestamp": 1794422126,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/YarXVI/dsh-yufeng",
+            "commit": "0000000000000000000000000000000000000000"
+          },
+          "engines": {
+            "dsh": ">=0.2.2-rc.1"
+          }
+        }
+      ]
+    }
+  ]
+}

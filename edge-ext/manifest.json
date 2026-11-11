@@ -1,0 +1,69 @@
+{
+  "manifest_version": 3,
+  "name": "DSH 翻译",
+  "version": "4.2.0",
+  "description": "一键对接 DSH 的 NPU 插件，把网页翻成中文。全部本地推理，内容不出内网。",
+  "minimum_chrome_version": "114",
+  "permissions": [
+    "storage",
+    "contextMenus",
+    "tabs",
+    "activeTab",
+    "system.network"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "optional_host_permissions": [],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "src/dsh.js",
+        "src/content.js",
+        "src/imgtranslate.js"
+      ],
+      "css": [
+        "src/content.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "DSH 翻译（Alt+T）",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    }
+  },
+  "options_ui": {
+    "page": "src/options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "commands": {
+    "toggle-translate": {
+      "suggested_key": {
+        "default": "Alt+T"
+      },
+      "description": "翻译 / 还原当前页面"
+    }
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApQYndWYLtueIRayZAvsfns3cDLFehFuTuanLpZPcAUNo/OpBqYA0OeMghguHMkejU/QvsqCcg91YdgjdLr2kgzQWMKF/ZuDHRRWQXMuF+oXvXo4mHfgiCFqoNXkqxhUHF7SEFPm4nIjnrzI6PIC49My2NDy70M0HYCHrORGNeQxDyroseACpsliBQRUwhsH1Y3Ewyq4WjgDGB+aih0W+tuqnDed5kPucFXaBhl2o32fWAhmzs2FTl0Fip/PVBZJcEgmFCBk0n1Jw+axJFEM7pA5aALpngPRRKfp4S66esQUzKf/2YSgRnpacH8nYV26UGoB1Bv1VYvlox/ggvnUzgQIDAQAB"
+}

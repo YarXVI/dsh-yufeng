@@ -1,0 +1,57 @@
+{
+  "name": "dsh-yufeng",
+  "version": "0.6.3",
+  "type": "module",
+  "description": "御风 · DSH Windows 工具箱 — 划词转译（系统级热键）+ Edge 插件扩展引导安装。数据存于 DSHQK/YuFeng（与燧心同级），通过 DSH 自带的 koffi（FFI）直调 Win32，无需独立 exe。",
+  "license": "MIT",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json",
+    "./icon": "./icon.svg",
+    "./client": "./client.js"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "lib/*.mjs",
+    "locale/*.json",
+    "README.md",
+    "edge-ext/**",
+    "panel.html",
+    "icon.svg",
+    "PUBLISH.md",
+    "STRUCTURE.md",
+    "_index.json"
+  ],
+  "engines": {
+    "node": ">=20",
+    "dsh": ">=0.2.2-rc.1"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  },
+  "author": "YarXVI",
+  "homepage": "https://github.com/YarXVI/dsh-yufeng#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YarXVI/dsh-yufeng.git"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "windows",
+    "translate",
+    "hotkey",
+    "clipboard",
+    "koffi",
+    "edge-extension"
+  ]
+}

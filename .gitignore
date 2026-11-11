@@ -1,0 +1,19 @@
+# 依赖
+node_modules/
+
+# 本地数据（不应进仓库）
+.plugin-market-cache/
+*.log
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+
+# 操作系统
+Thumbs.db
+desktop.ini
+
+# 临时产物
+_index-entry.json
+*.tmp

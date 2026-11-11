@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="ui.css" />
+  <title>DSH 翻译 · 设置</title>
+</head>
+<body class="options">
+  <div class="wrap">
+    <h1>DSH 翻译 <span class="mono muted" id="ver"></span></h1>
+    <p class="sub">所有推理都在 DSH 的本机 NPU 上完成，网页内容不会离开这台电脑或内网。</p>
+
+    <!-- 连接 -->
+    <section class="card">
+      <h2>连接</h2>
+      <p class="desc">DSH 的 NPU 插件在工作时，点下面的按钮就能自动找到它；找不到再手填地址。</p>
+
+      <div class="connect">
+        <div class="txt">
+          <b id="connTitle">未连接</b>
+          <span id="connSub">点右边自动搜索</span>
+        </div>
+        <button id="connectBtn" type="button">一键连接</button>
+      </div>
+
+      <div class="field">
+        <label for="endpoint">DSH 地址</label>
+        <div class="ctl">
+          <input type="text" id="endpoint" data-key="endpoint" spellcheck="false"
+                 placeholder="http://127.0.0.1:47300（留空 = 自动发现）" autocomplete="off" />
+          <span class="note">DSH 面板上显示的是 <span class="mono">http://host:端口/v1</span>，直接粘上去也行。
+            面板绑在局域网时本机 127.0.0.1 可能打不通，填局域网地址并在授权框点「允许」。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="apiKey">访问 token</label>
+        <div class="ctl">
+          <input type="text" id="apiKey" data-key="apiKey" spellcheck="false"
+                 placeholder="DSH 没设 token 就留空" autocomplete="off" />
+          <span class="note">DSH 开了 API token 时填同一个值，会以
+            <span class="mono">Authorization: Bearer &lt;token&gt;</span> 发送。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="lanSubnets">扫描的网段</label>
+        <div class="ctl">
+          <textarea id="lanSubnets" data-key="lanSubnets" data-type="lines" spellcheck="false"
+                    placeholder="192.168.1"></textarea>
+          <span class="note">每行一个网段前缀（三段，例如 <span class="mono">192.168.1</span>）。
+            「一键连接」会先试回环和本机网卡；都不通时按这个网段扫 DSH 端口（47300）。
+            留空则自动扫常见网段。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="model">角色</label>
+        <div class="ctl">
+          <input type="text" id="model" data-key="model" spellcheck="false" placeholder="translate" />
+          <span class="note">DSH 的「模型名」就是角色：<span class="mono">translate</span> 是专职翻译模型，最推荐；
+            <span class="mono">chat</span> 是通用对话模型。留空会自动挑。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>自检</label>
+        <div class="ctl">
+          <button class="ghost" id="testBtn" type="button">测试一下</button>
+          <span class="note" id="testMeta"></span>
+          <pre id="testOut"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 翻译 -->
+    <section class="card">
+      <h2>翻译</h2>
+
+      <div class="field">
+        <label for="targetLang">目标语言</label>
+        <div class="ctl">
+          <select id="targetLang" data-key="targetLang" class="ui-select">
+            <option>简体中文</option>
+            <option>繁體中文</option>
+            <option>English</option>
+            <option>日本語</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="mode">默认显示方式</label>
+        <div class="ctl">
+          <div class="seg" id="modeSeg">
+            <button type="button" data-mode="bilingual">双语对照</button>
+            <button type="button" data-mode="only">仅译文</button>
+          </div>
+          <span class="note">弹窗里随时可以切换，切换后不用重新翻译。</span>
+        </div>
+        <input type="hidden" id="mode" data-key="mode" />
+      </div>
+
+      <div class="field">
+        <label>标签保护</label>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" id="tagProtect" data-key="tagProtect" />
+            原样保留 [Digital]【R版】[汉化组] 这类方括号标签</label>
+          <span class="note">送模型前换成占位符、翻完换回原文，所以标题里只有正文被翻。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="batchSize">一次翻几段</label>
+        <div class="ctl">
+          <input type="number" id="batchSize" data-key="batchSize" data-type="number" min="1" max="20" step="1" />
+          <span class="note">默认 6。NPU 上一批 6 段约 0.6 秒；批越大单次越慢但总往返更少。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 行为 -->
+    <section class="card">
+      <h2>页面行为</h2>
+
+      <div class="field">
+        <label>自动翻译</label>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" id="autoTranslate" data-key="autoTranslate" />
+            打开外语页面时自动翻译</label>
+          <span class="note">默认关闭。打开后，只有白名单里的站会自动翻（在弹窗里拨「本站自动翻译」即可加入）。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="autoOnSites">自动翻译的站（白名单）</label>
+        <div class="ctl">
+          <textarea id="autoOnSites" data-key="autoOnSites" data-type="lines" spellcheck="false"
+                    placeholder="https://nhentai.net&#10;https://www.pixiv.net"></textarea>
+          <span class="note">每行一个来源（协议 + 域名）。<b>只有列在这里的站会自动翻</b>；没列的站一律不自动翻。在弹窗里拨「本站自动翻译」开关会自动加到这里。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="autoOffSites">永不自动翻译的站（黑名单）</label>
+        <div class="ctl">
+          <textarea id="autoOffSites" data-key="autoOffSites" data-type="lines" spellcheck="false"
+                    placeholder="https://mail.google.com"></textarea>
+          <span class="note">优先级高于白名单：同一个站在两个列表里时，以这个为准。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>划词翻译</label>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" id="selectionTranslate" data-key="selectionTranslate" />
+            选中文字就弹出译文气泡</label>
+          <span class="note">右键菜单「用 DSH 翻译选中的文字」始终可用，不受这个开关影响。气泡会显示原文与译文，可一键复制或按 Esc 关闭。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>图片翻译</label>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" id="imageTranslate" data-key="imageTranslate" />
+            按住 Alt 点击图片，把图里的文字翻成中文并盖在原处</label>
+          <span class="note">不需要 OCR 工具：先用纯算法在浏览器里定位文字块（约 20ms），再逐块交给 DSH 翻译（约 100ms/块）。普通点击不受影响，只有按住 Alt 才触发。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>图片自动翻译</label>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" id="imageAutoTranslate" data-key="imageAutoTranslate" />
+            翻页后自动翻译新出现的图（无需再手动点）</label>
+          <span class="note">原理：监听页面主图的 src 变化。所以鼠标点翻页、方向键 ←→、PageUp/PageDown、滚轮、无限滚动**所有方式**都管用 —— 殊途同归，最终都是主图换了内容。一张图约 3.5 秒，所以默认关闭。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>跳过站点导航栏</label>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" id="siteSkipSidebar" data-key="siteSkipSidebar" />
+            不翻译 Discord / Slack 这类站点的侧栏导航</label>
+          <span class="note">这些站点的服务器图标栏和频道列表结构极复杂，翻它们容易把图标弄没。默认开启。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>保护数字</label>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" id="numberProtect" data-key="numberProtect" />
+            页面上的计数、金额、百分比原样保留</label>
+          <span class="note">用占位符锁住数字再还原，避免模型把 240.8k 改写成 240,800。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="skipSelectors">跳过的区域</label>
+        <div class="ctl">
+          <input type="text" id="skipSelectors" data-key="skipSelectors" spellcheck="false" />
+          <span class="note">默认跳过代码块、输入框。想跳过别的区域就加 CSS 选择器，逗号分隔。</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 缓存 -->
+    <section class="card">
+      <h2>翻译缓存</h2>
+      <p class="desc">翻过的文字存进扩展的本地数据库，下次遇到同样的词句直接替换，不用再跑模型。</p>
+
+      <div class="field">
+        <label>当前缓存</label>
+        <div class="ctl">
+          <div class="cacheStat" id="cacheStat">读取中…</div>
+          <span class="note">独立单词翻一次即缓存；长句第一次由模型校准，之后直接复用。</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>管理</label>
+        <div class="ctl">
+          <button class="ghost" id="clearCacheBtn" type="button">清空缓存（下次重新校准）</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="save" id="saveBtn" type="button">保存</button>
+      <button class="ghost" id="resetBtn" type="button">恢复默认</button>
+      <span class="note" id="saveMeta"></span>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="dsh.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
