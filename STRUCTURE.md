@@ -6,7 +6,7 @@
 
 ```
 dsh-yufeng/
-  package.json        npm 包清单（name=dsh-yufeng）
+  package.json        包清单（name=dsh-toolbox）
   cordis.patch.yml    装配层（dsh.bundle.patch 指向它）
   index.js            宿主入口：export name / inject / apply
   client.js           浏览器侧（侧边栏 React 面板）
@@ -30,11 +30,11 @@ git+https://github.com/YarXVI/dsh-yufeng.git#<commit>
 
 ```bash
 # 软链到 profile（DSH 从 profile 的 node_modules 找插件）
-mklink /J %USERPROFILE%\.dsh\profiles\desktop\node_modules\dsh-yufeng <本仓库路径>
+mklink /J %USERPROFILE%\.dsh\profiles\desktop\node_modules\dsh-toolbox <本仓库路径>
 
 # 或用 pnpm
 # 在 profile 的 package.json 里加：
-#   "dsh-yufeng": "link:./plugins/dsh-yufeng"
+#   "dsh-toolbox": "link:./plugins/dsh-toolbox"
 ```
 
 ## 自测
