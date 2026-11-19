@@ -225,6 +225,27 @@ window.__ModuleLoader__.load({
 
     /* ------------------------------------------------------------ UI --- */
 
+    /**
+     * 把「距今多久」渲染成人话。
+     *
+     * 面板上显示这个而不是绝对时间，是因为用户关心的是
+     * 「这条数据还新不新」——「41 分钟前」比「00:31」直观得多。
+     *
+     * @param {number} ms 毫秒差
+     * @returns {string}
+     */
+    function formatAge(ms) {
+      if (ms == null || ms < 0) return '未知';
+      const s = Math.round(ms / 1000);
+      if (s < 5) return '刚刚';
+      if (s < 60) return s + ' 秒前';
+      const m = Math.round(s / 60);
+      if (m < 60) return m + ' 分钟前';
+      const h = Math.round(m / 60);
+      if (h < 24) return h + ' 小时前';
+      return Math.round(h / 24) + ' 天前';
+    }
+
     /** 状态徽章 */
     function StatusBadge(props) {
       const s = props.state;
@@ -452,6 +473,11 @@ window.__ModuleLoader__.load({
       const [extBusy, setExtBusy] = useState('');
       const [extMsg, setExtMsg] = useState('');
 
+      /** 本机信息（local_env）的探测状态，来自 /state 的 localEnv 字段 */
+      const env = (state && state.localEnv) || null;
+      const [envBusy, setEnvBusy] = useState('');
+      const [envMsg, setEnvMsg] = useState('');
+
       const prepExt = async () => {
         setExtBusy('prep');
         setExtMsg('');
@@ -480,6 +506,48 @@ window.__ModuleLoader__.load({
           }
         } catch (e) {
           setExtMsg('打开失败，请手动访问 edge://extensions/');
+        }
+      };
+
+      /**
+       * 立即重探本机信息。
+       *
+       * 存在的理由：用户刚装了 pnpm、刚换过代理之后，
+       * 不该等 60 秒轮询或重启 DSH 才知道模型能不能看见。
+       */
+      const refreshEnv = async () => {
+        setEnvBusy('refresh');
+        setEnvMsg('');
+        try {
+          const r = await postPatch('/env/refresh', {});
+          setEnvMsg(r && r.ok
+            ? ('已重探（' + (r.durationMs || 0) + 'ms）')
+            : ('重探失败：' + ((r && r.error) || '未知错误')));
+          await refresh();
+        } catch (e) {
+          setEnvMsg('重探失败：' + ((e && e.message) || e));
+        } finally {
+          setEnvBusy('');
+        }
+      };
+
+      /**
+       * 改本机信息配置（开关 / 轮询间隔 / 默认详细程度）。
+       *
+       * 走独立的 /env/config 而不是塞进主 /config：
+       * 主配置保存会连带重启热键轮询，改个采集间隔不该有那个副作用。
+       */
+      const saveEnvCfg = async (patch) => {
+        setEnvBusy('save');
+        setEnvMsg('');
+        try {
+          const r = await postPatch('/env/config', { localEnv: patch });
+          setEnvMsg(r && r.ok ? '设置已保存' : ('保存失败：' + ((r && r.error) || '未知错误')));
+          await refresh();
+        } catch (e) {
+          setEnvMsg('保存失败：' + ((e && e.message) || e));
+        } finally {
+          setEnvBusy('');
         }
       };
 
@@ -612,6 +680,85 @@ window.__ModuleLoader__.load({
               '用法：在任何应用里划词选中 → 按快捷键 → 就地转译。',
               h('br'),
               '剪贴板会被临时占用，之后自动恢复（连图片/文件都备份）。',
+            ),
+          ),
+        ),
+
+        // ---- 预提交本机信息 ----
+        h('div', { className: 'dtb-card' },
+          h('div', { className: 'dtb-card-head' },
+            '预提交本机信息',
+            env && env.enabled
+              ? h('span', { className: 'dtb-badge ' + (env.stale ? 'warn' : 'ok'), style: { marginLeft: 8 } },
+                  h('span', { className: 'dtb-dot' }),
+                  env.stale ? '待探测' : (env.ageMs != null ? formatAge(env.ageMs) : '已就绪'))
+              : h('span', { className: 'dtb-badge warn', style: { marginLeft: 8 } }, '已关闭'),
+          ),
+          h('div', { className: 'dtb-card-body' },
+            h('div', { style: { fontSize: 13, marginBottom: 8 } },
+              '让 AI 在动手前就知道这台机器装了什么 —— 系统、shell、工具链、GPU、权限、网络可达性。',
+              '采集后作为 local_env 工具提供给模型，避免它逐条命令试探。'),
+
+            // 开关
+            h('div', { className: 'dtb-row' },
+              h('span', { className: 'dtb-label' }, '启用'),
+              h('input', {
+                type: 'checkbox',
+                checked: !!(env && env.enabled),
+                onChange: (e) => saveEnvCfg({ enabled: e.target.checked }),
+                'aria-label': '启用本机信息采集',
+                style: { width: 18, height: 18 },
+              }),
+              h('span', { style: { fontSize: 12, color: 'var(--dsw-alias-label-tertiary, #8b8f96)' } },
+                '关闭后不再注册 local_env 工具，也不后台探测'),
+            ),
+
+            // 轮询间隔
+            h('div', { className: 'dtb-row' },
+              h('span', { className: 'dtb-label' }, '刷新间隔'),
+              h('select', {
+                className: 'dtb-select',
+                value: String((env && env.pollMs) || 60000),
+                onChange: (e) => saveEnvCfg({ pollMs: Number(e.target.value) }),
+                'aria-label': '刷新间隔',
+              },
+                h('option', { value: '30000' }, '30 秒'),
+                h('option', { value: '60000' }, '1 分钟（推荐）'),
+                h('option', { value: '300000' }, '5 分钟'),
+                h('option', { value: '600000' }, '10 分钟'),
+              ),
+            ),
+
+            // 默认详细程度
+            h('div', { className: 'dtb-row' },
+              h('span', { className: 'dtb-label' }, '默认详细度'),
+              h('select', {
+                className: 'dtb-select',
+                value: (env && env.detail) || 'brief',
+                onChange: (e) => saveEnvCfg({ detail: e.target.value }),
+                'aria-label': '默认详细程度',
+              },
+                h('option', { value: 'brief' }, 'brief（约 400 token，推荐）'),
+                h('option', { value: 'full' }, 'full（含完整版本串与路径明细）'),
+              ),
+            ),
+
+            h('div', { className: 'dtb-row', style: { marginTop: 10 } },
+              h('button', { className: 'dtb-btn', onClick: refreshEnv, disabled: !!envBusy },
+                envBusy === 'refresh' ? '探测中…' : '立即重探'),
+            ),
+            envMsg ? h('div', { className: 'dtb-note', role: 'status' }, envMsg) : null,
+
+            // 展开看模型实际读到的内容 —— 这是「可解释性」的关键
+            env && env.text ? h('details', { style: { marginTop: 10 } },
+              h('summary', { style: { cursor: 'pointer', fontSize: 12, color: 'var(--dsw-alias-label-tertiary, #8b8f96)' } },
+                '查看模型实际读到的内容'),
+              h('pre', { className: 'dtb-pre', style: { marginTop: 6 } }, env.text),
+            ) : null,
+
+            h('div', { className: 'dtb-hint' },
+              '为什么值得开着：这段信息让模型省掉十几条探测命令，',
+              '而且「能不能上 HuggingFace」「有没有管理员权限」这类判断会直接影响它的方案选择。',
             ),
           ),
         ),

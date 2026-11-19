@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Pre-submitted Host Info",
+    "description": "Hands the agent the host environment up front: OS, available shells, installed toolchains and versions. Probed asynchronously at startup and refreshed every 60 seconds."
+  }
+}

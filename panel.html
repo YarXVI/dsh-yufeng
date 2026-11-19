@@ -42,6 +42,25 @@ pre{background:#1e1f22;border-radius:6px;padding:10px;font-size:12px;overflow:au
 </div>
 
 <div class="card">
+  <h2>预提交本机信息（local_env）</h2>
+  <div class="row"><label>状态</label><span id="envBadge" class="badge">检测中…</span></div>
+  <div class="row"><label>启用</label><input type="checkbox" id="envEnabled"></div>
+  <div class="row"><label>刷新间隔</label><select id="envPoll">
+    <option value="30000">30 秒</option>
+    <option value="60000">1 分钟</option>
+    <option value="300000">5 分钟</option>
+    <option value="600000">10 分钟</option>
+  </select></div>
+  <div class="row"><label>默认详细度</label><select id="envDetail">
+    <option value="brief">brief</option>
+    <option value="full">full</option>
+  </select></div>
+  <div class="row"><button id="envRefresh">立即重探</button><button class="primary" id="envSave">保存设置</button></div>
+  <div class="note">采集结果作为 local_env 工具提供给 AI，避免它逐条命令试探。</div>
+  <pre id="envText" style="margin-top:10px">加载中…</pre>
+</div>
+
+<div class="card">
   <h2>运行信息</h2>
   <pre id="info">加载中…</pre>
 </div>
@@ -94,6 +113,23 @@ function render(st) {
     ffi: svc.ffi, source: svc.source, running: svc.running, busy: svc.busy,
     stats: svc.stats, last: svc.last
   }, null, 2);
+
+  // --- 本机信息 ---
+  const env = st.localEnv || null;
+  const eb = $("#envBadge");
+  if (!env) { eb.className = "badge err"; eb.textContent = "未装配"; }
+  else if (!env.enabled) { eb.className = "badge err"; eb.textContent = "已关闭"; }
+  else if (env.stale) { eb.className = "badge err"; eb.textContent = "待探测"; }
+  else {
+    eb.className = "badge ok";
+    eb.textContent = "已就绪" + (env.ageMs != null ? "（" + Math.round(env.ageMs / 1000) + " 秒前）" : "");
+  }
+  if (env) {
+    $("#envEnabled").checked = !!env.enabled;
+    $("#envPoll").value = String(env.pollMs || 60000);
+    $("#envDetail").value = env.detail || "brief";
+    if (document.activeElement !== $("#envText")) $("#envText").textContent = env.text || "(无数据)";
+  }
 }
 
 async function refresh() {
@@ -120,6 +156,25 @@ $("#save").onclick = async () => {
   const r = await fetch(API + "/config", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) }).then(x=>x.json());
   if (r.ok) { $("#info").textContent = "已保存"; refresh(); }
   else $("#info").textContent = "保存失败: " + r.error;
+};
+
+$("#envRefresh").onclick = async () => {
+  $("#envText").textContent = "重探中…";
+  const r = await fetch(API + "/env/refresh", { method:"POST", headers:{"Content-Type":"application/json"}, body:"{}" }).then(x=>x.json());
+  if (r.ok) { $("#envText").textContent = r.text || "(空)"; }
+  else { $("#envText").textContent = "重探失败: " + r.error; }
+  refresh();
+};
+
+$("#envSave").onclick = async () => {
+  const body = { localEnv: {
+    enabled: $("#envEnabled").checked,
+    pollMs: Number($("#envPoll").value),
+    detail: $("#envDetail").value,
+  } };
+  const r = await fetch(API + "/env/config", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body) }).then(x=>x.json());
+  $("#envText").textContent = r.ok ? "设置已保存" : ("保存失败: " + r.error);
+  refresh();
 };
 
 $("#run").onclick = async () => {

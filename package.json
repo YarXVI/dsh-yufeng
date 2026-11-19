@@ -1,8 +1,8 @@
 {
   "name": "dsh-toolbox",
-  "version": "0.6.3",
+  "version": "0.7.0",
   "type": "module",
-  "description": "御风 · DSH Windows 工具箱 — 划词转译（系统级热键）+ Edge 插件扩展引导安装。数据存于 DSHQK/YuFeng（与燧心同级），通过 DSH 自带的 koffi（FFI）直调 Win32，无需独立 exe。",
+  "description": "御风 · DSH Windows 工具箱 — 预提交本机信息（模型动手前交代环境）+ 划词转译（系统级热键）+ Edge 插件扩展引导安装。数据存于 DSHQK/YuFeng（与燧心同级），通过 DSH 自带的 koffi（FFI）直调 Win32，无需独立 exe。",
   "license": "MIT",
   "main": "index.js",
   "exports": {
@@ -29,6 +29,14 @@
     "node": ">=20",
     "dsh": ">=0.2.2-rc.1"
   },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-tools": ">=0.2.2-rc.1"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh-tools": {
+      "optional": true
+    }
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -48,6 +56,8 @@
     "dsh-plugin",
     "cordis",
     "windows",
+    "host-info",
+    "environment-probe",
     "translate",
     "hotkey",
     "clipboard",

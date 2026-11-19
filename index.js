@@ -22,11 +22,17 @@ import { loadConfig, saveConfig, publicConfig, DEFAULT_CONFIG, currentDataRoot }
 import { createWinTranslate } from './lib/service.mjs';
 import { createPanelApi, PANEL_PREFIX } from './lib/panel-api.mjs';
 import { migrateIfNeeded } from './lib/migrate.mjs';
+import { loadKoffi } from './lib/koffi-loader.mjs';
+import { createEnvProbe } from './lib/env-probe.mjs';
+import { installEnvTool } from './lib/env-tool.mjs';
 
 export const name = 'dsh-toolbox';
 
 /**
- * 只注入 webServer（挂面板路由）。
+ * 注入的服务。
+ *
+ *  · webServer —— 挂面板路由；
+ *  · tools     —— 注册「预提交本机信息」工具（local_env）。
  *
  * 不注入 llm：翻译走 HTTP，不需要 DSH 的模型层。这样模型换了也不影响。
  */
@@ -107,6 +113,78 @@ export function apply(ctx, config = {}) {
   }
 
   /**
+   * 预提交本机信息的两个句柄。
+   *
+   * 必须在面板装配**之前**声明：面板要读探测状态，
+   * 而面板路由是 apply 里最早挂的那批之一。
+   */
+  let probe = null;
+  let envTool = null;
+  try {
+    probe = createEnvProbe({ loadKoffi, log, dshRoot: dataRoot || '' });
+  } catch (e) {
+    log('探测模块创建失败（其余功能不受影响）：' + ((e && e.message) || e));
+    probe = null;
+  }
+
+  /**
+   * 给面板看的探测视图。
+   *
+   * 只暴露面板需要的几个字段，不把 probe 整个对象交出去 ——
+   * panel-api 不该能调用 ensure/fingerprint 这些内部方法。
+   *
+   * @returns {object|null}
+   */
+  const envView = () => {
+    if (!probe) return null;
+    const data = probe.cached;
+    const at = probe.cachedAt || 0;
+    const cfgEnv = cfg.localEnv || {};
+    return {
+      available: true,
+      enabled: cfgEnv.enabled !== false,
+      pollMs: cfgEnv.pollMs || 60000,
+      detail: cfgEnv.detail || 'brief',
+      sampledAt: at ? new Date(at).toISOString() : null,
+      ageMs: at ? Date.now() - at : null,
+      stale: !data,
+      // brief 正文：面板用它展示「模型到底看到了什么」
+      text: probe.render(data, 'brief', {
+        workspace: '',
+        stack: '',
+      }),
+      // 给面板做摘要用的结构化字段
+      summary: data ? {
+        os: data.os ? data.os.split(' ').slice(0, 3).join(' ') : '',
+        tools: (data.tools || []).length,
+        gpu: data.gpu ? String(data.gpu).split(',')[0] : '',
+        reach: data.net ? Object.entries(data.net).filter(([, r]) => r && r.ok).length : 0,
+      } : null,
+      error: null,
+      /** 面板「立即重探」用 */
+      refresh: async () => {
+        const t0 = Date.now();
+        try {
+          const fresh = await probe.ensure(true);
+          return {
+            sampledAt: probe.cachedAt ? new Date(probe.cachedAt).toISOString() : null,
+            durationMs: Date.now() - t0,
+            text: probe.render(fresh, 'brief', { workspace: '', stack: '' }),
+            error: null,
+          };
+        } catch (e) {
+          return {
+            sampledAt: null,
+            durationMs: Date.now() - t0,
+            text: '',
+            error: String((e && e.message) || e),
+          };
+        }
+      },
+    };
+  };
+
+  /**
    * 挂 HTTP 面板路由。
    *
    * 参考 dsh-npu 的做法：ctx.inject(['webServer'], scoped => ...)，
@@ -124,6 +202,20 @@ export function apply(ctx, config = {}) {
        * 通过回调暴露，避免 panel-api 直接依赖 FFI 层（保持分层）。
        */
       getWin32: () => svc.getApi(),
+      /** 本机信息探测视图（面板展示 + 立即重探） */
+      getEnv: envView,
+      /** 面板改了 localEnv 配置后，要让轮询按新间隔跑 */
+      onEnvConfigChange: (next) => {
+        try {
+          // applyConfig 只调整这个子功能，不重建整个插件 ——
+          // 否则改个轮询间隔会把划词转译的热键轮询一起停掉再起来。
+          if (envTool && typeof envTool.applyConfig === 'function') {
+            envTool.applyConfig(next);
+          }
+        } catch (e) {
+          log('按新配置调整本机信息功能失败：' + ((e && e.message) || e));
+        }
+      },
     });
 
     ctx.effect(() => {
@@ -157,12 +249,60 @@ export function apply(ctx, config = {}) {
   }
 
   /**
+   * 预提交本机信息。
+   *
+   * 整段包 try/catch：探测能力缺失（比如 koffi 没找到）时，
+   * 只降级这一个功能，御风的划词转译必须照常可用。
+   *
+   * 注意 probe 在外层先建好，因为面板（前面已装配）也要读它。
+   * 顺序是：先建 probe → 建面板（拿 envView）→ 注入 tools 注册工具。
+   * 面板装配那一步传的是闭包，调用时才取 envTool，所以前后顺序安全。
+   */
+  if (probe) {
+    // 通过 ctx.inject 拿 tools 服务，而不是把 tools 写进 export inject。
+    //
+    // 原因：export inject 是**阻塞式**的 —— 声明的服务不可用时整个 apply 不执行，
+    // 划词转译会跟着一起失效。tools 只影响「本机信息工具」这一个子功能，
+    // 不值得让它拖垮其余。dsh-npu 用的是同一种写法（见其 index.js:2344）。
+    ctx.inject(['tools'], (tctx) => {
+      try {
+        // workingDirectory 从**插件根 ctx** 取，不是从 tctx 取：
+        //   tctx 是 tools 服务的 scoped context，里面不一定挂着 workingDirectory
+        //   （实测就是这样，导致 workspace 一直取不到）。
+        //   根 ctx 能看到本 scope 的全部服务，是可靠来源。
+        //   这里不做 inject(['workingDirectory'])，因为 inject 是阻塞的 ——
+        //   该服务缺失会让整个功能不装配，而它只是「锦上添花」的一行。
+        let workingDirectory = null;
+        try {
+          workingDirectory = ctx.workingDirectory
+            || (typeof ctx.get === 'function' ? ctx.get('workingDirectory') : null);
+        } catch { /* ignore */ }
+
+        envTool = installEnvTool({
+          ctx: tctx,
+          probe,
+          log,
+          config: () => cfg.localEnv || {},
+          workingDirectory,
+        });
+        tctx.effect(() => {
+          envTool.start();
+          return () => { try { envTool.stop(); } catch { /* ignore */ } };
+        });
+      } catch (e) {
+        log('本机信息工具装配失败（其余功能不受影响）：' + ((e && e.message) || e));
+      }
+    });
+  }
+
+  /**
    * 提供一个只读句柄，方便同进程其它插件查询（比如让 agent 知道有这个能力）。
    */
   try {
     ctx.provide('toolbox', {
       status: () => svc.status(),
       trigger: (opts) => svc.trigger(opts),
+      localEnv: () => (envTool ? envTool.ensure() : null),
     });
   } catch { /* 旧版宿主没有 provide，忽略 */ }
 }

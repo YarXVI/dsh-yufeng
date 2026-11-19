@@ -5,8 +5,8 @@
     "zh": "御风 · Windows 工具箱"
   },
   "description": {
-    "en": "System-wide selection translation via a global hotkey, plus guided install of the bundled Edge extension. Calls Hearthcore (dsh-npu) by default; any OpenAI-compatible endpoint can be configured.",
-    "zh": "系统级划词转译：任意应用里划词选中，按热键就地转译。内置 Edge 扩展引导安装。默认调用燧心，也可配置任意 OpenAI 兼容服务。"
+    "en": "Hands the model a complete host profile before it starts: OS, shell, toolchain versions, hardware, disks, code page, privileges, package mirrors and network reachability — then lets you select text anywhere and translate it with a hotkey.",
+    "zh": "模型动手前先把这台机器的环境一次交代清楚：系统 / shell / 工具链版本 / 硬件 / 磁盘 / 代码页 / 权限 / 镜像源 / 网络连通性；再按热键在任意应用里划词就地转译。"
   },
   "metadata": {
     "categories": {
@@ -47,6 +47,12 @@
           "en": "No separate executable",
           "zh": "无需独立进程"
         }
+      },
+      "env": {
+        "title": {
+          "en": "Environment snapshot",
+          "zh": "环境快照"
+        }
       }
     },
     "sortKeys": {}
@@ -59,8 +65,8 @@
         "zh": "御风 · Windows 工具箱"
       },
       "description": {
-        "en": "Select text in any app and press the hotkey to translate it in place. Drives Win32 through DSH's bundled koffi FFI: no separate executable, no Python. Bundles the Edge translation extension and installs it with step-by-step guidance. Defaults to Hearthcore (dsh-npu); any OpenAI-compatible endpoint can be added in the panel.",
-        "zh": "在任意应用里划词选中，按热键就地转译。通过 DSH 自带的 koffi（FFI）直调 Win32：无需独立 exe，无需 Python。内置 Edge 翻译扩展，分步骤引导安装。默认走燧心，也可在面板里加任意 OpenAI 兼容服务。"
+        "en": "One tool call returns a full environment snapshot (OS, shells, toolchain versions, CPU/memory/GPU, disks, code page, privileges, mirrors, network matrix and fallbacks), refreshed every 60 s with a sample timestamp, so the agent never has to probe one command at a time. Plus system-wide selection translation via a global hotkey, driving Win32 through DSH's bundled koffi FFI: no separate executable, no Python.",
+        "zh": "一条工具调用返回完整环境快照（系统 / shell / 工具链版本 / CPU·内存·GPU / 磁盘 / 代码页 / 权限 / 镜像源 / 网络矩阵与降级对策），每 60 秒刷新并带采样时间戳，Agent 不必逐条命令试探。另有系统级划词转译：全局热键，通过 DSH 自带的 koffi（FFI）直调 Win32，无需独立 exe、无需 Python。"
       },
       "icon": "icon.svg",
       "author": "YarXVI",
@@ -71,6 +77,9 @@
       "metadata": {
         "category": "tools",
         "keywords": [
+          "host-info",
+          "environment-probe",
+          "snapshot",
           "translate",
           "hotkey",
           "clipboard",
@@ -81,6 +90,7 @@
         ],
         "labels": [
           "windows",
+          "env",
           "hotkey",
           "offline",
           "compat",
