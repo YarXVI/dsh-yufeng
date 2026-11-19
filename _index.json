@@ -99,6 +99,18 @@
       },
       "versions": [
         {
+          "version": "0.7.0",
+          "publishTimestamp": 1795114599,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/YarXVI/dsh-yufeng",
+            "commit": "078d029beba98e887f9a73487624f1a8f3765e63"
+          },
+          "engines": {
+            "dsh": ">=0.2.2-rc.1"
+          }
+        },
+        {
           "version": "0.6.3",
           "publishTimestamp": 1794422126,
           "source": {
